@@ -1,7 +1,9 @@
 package httpserverhelper
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -68,4 +70,44 @@ func NewRouter(routes Routes) *mux.Router {
 			Handler(cors.Default().Handler(handler))
 	}
 	return router
+}
+
+func ExtractBody(bodyReader io.ReadCloser, data interface{}) error {
+	// var validate = validator.New()
+
+	bodyByte, err := io.ReadAll(io.LimitReader(bodyReader, 1048576))
+
+	if err != nil {
+		return err
+	}
+
+	if err := bodyReader.Close(); err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(bodyByte, data); err != nil {
+		return err
+	}
+
+	// errValidate := validate.Struct(data)
+
+	// if errValidate != nil {
+	// 	return errValidate
+	// }
+
+	return nil
+}
+
+func ReturnErr(w http.ResponseWriter, err error, enum string) {
+	w.WriteHeader(400)
+
+	type resp struct {
+		StatusENUM string
+		Message    string
+	}
+
+	json.NewEncoder(w).Encode(&resp{
+		StatusENUM: enum,
+		Message:    err.Error(),
+	})
 }
