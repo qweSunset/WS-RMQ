@@ -8,4 +8,7 @@ require (
 	github.com/rs/cors v1.10.1
 )
 
-require golang.org/x/net v0.21.0 // indirect
+require (
+	github.com/rabbitmq/amqp091-go v1.9.0
+	golang.org/x/net v0.21.0 // indirect
+)
